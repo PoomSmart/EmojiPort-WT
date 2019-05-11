@@ -1,0 +1,12 @@
+Package: com.ps.emojiportwt
+Name: EmojiPort (iOS 10.0-11.4)
+Depends: mobilesubstrate, firmware (>= 10.0), firmware (<< 12.0), com.ps.emojiattributes, com.ps.emojilibrary, com.ps.emojiport10resources
+Conflicts: com.ps.emoji10wt
+Version: 1.0.0
+Architecture: iphoneos-arm
+Description: Latest emojis for iOS 10.0-11.4
+Maintainer: PoomSmart
+Author: PoomSmart
+Section: Tweaks
+Depiction: https://poomsmart.github.io/repo/depictions/emojiport_10.html
+SileoDepiction: https://poomsmart.github.io/repo/sileodepictions/emojiport_10.json
