@@ -295,7 +295,7 @@ BOOL overrideNewVariant = NO;
 CFURLRef (*copyResourceURLFromFrameworkBundle)(CFStringRef const, CFStringRef const, CFLocaleRef const);
 %hookf(CFURLRef, copyResourceURLFromFrameworkBundle, CFStringRef const resourceName, CFStringRef const resourceType, CFLocaleRef const locale) {
     CFURLRef url = NULL;
-    if (resourceName && resourceType && (CFStringEqual(resourceType, CFSTR("dat")) || CFStringEqual(resourceType, CFSTR("bitmap")) || CFStringEqual(resourceType, CFSTR("strings")) || (CFStringEqual(resourceName, CFSTR("emojimeta")) && !isiOS11Up)))
+    if (resourceName && resourceType && !CFStringEqual(resourceName, CFSTR("emojimeta")) && (CFStringEqual(resourceType, CFSTR("dat")) || CFStringEqual(resourceType, CFSTR("bitmap")) || CFStringEqual(resourceType, CFSTR("strings"))))
         url = %orig((__bridge CFStringRef)[(__bridge NSString *)resourceName stringByAppendingString:@"2"], resourceType, locale);
     return url ? url : %orig;
 }
