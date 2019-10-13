@@ -1,7 +1,6 @@
 #import "../PS.h"
 #import "../EmojiLibrary/PSEmojiUtilities.h"
 #import "../EmojiLibrary/Header.h"
-#import "../EmojiLibrary/Emojis.h"
 
 %config(generator=MobileSubstrate)
 
@@ -198,7 +197,7 @@
 
 - (BOOL)supportsSkinToneVariants {
     if (self.ep_supportsSkinToneVariants == -1)
-        self.ep_supportsSkinToneVariants = ![[PSEmojiUtilities NoneVariantEmoji] containsObject:self.string] && [PSEmojiUtilities emojiString:[PSEmojiUtilities emojiBaseFirstCharacterString:self.string] inGroup:[PSEmojiUtilities SkinToneEmoji]] ? 1 : 0;
+        self.ep_supportsSkinToneVariants = ![PSEmojiUtilities isNoneVariantEmoji:self.string] && [PSEmojiUtilities isSkinToneEmoji:[PSEmojiUtilities emojiBaseFirstCharacterString:self.string]] ? 1 : 0;
     return self.ep_supportsSkinToneVariants == 1;
 }
 
@@ -265,7 +264,7 @@ BOOL overrideNewVariant = NO;
 
 - (NSString *)emojiBaseFirstCharacterString:(NSString *)emojiString {
     NSString *baseEmoji = nil;
-    return preventFirst && emojiString.length >= 4 && [[PSEmojiUtilities ProfessionEmoji] containsObject:baseEmoji = [PSEmojiUtilities professionSkinToneEmojiBaseKey:emojiString]] ? baseEmoji : %orig;
+    return preventFirst && emojiString.length >= 4 && [PSEmojiUtilities isProfessionEmoji:baseEmoji = [PSEmojiUtilities professionSkinToneEmojiBaseKey:emojiString]] ? baseEmoji : %orig;
 }
 
 - (NSString *)emojiBaseString:(NSString *)emojiString {
@@ -293,29 +292,6 @@ BOOL overrideNewVariant = NO;
 
 %group CoreEmoji
 
-void *(*EmojiData)(void *, CFURLRef const, CFURLRef const);
-%hookf(void *, EmojiData, void *arg0, CFURLRef const datPath, CFURLRef const metaDatPath) {
-    void *orig = %orig(arg0, datPath, metaDatPath);
-#if __LP64__
-    CFMutableArrayRef *data = (CFMutableArrayRef *)((uintptr_t)arg0 + 0x28);
-    int *count = (int *)((uintptr_t)arg0 + 0x32);
-#else
-    CFMutableArrayRef *data = (CFMutableArrayRef *)((uintptr_t)arg0 + 0x14);
-    int *count = (int *)((uintptr_t)arg0 + 0x1A);
-#endif
-    CFArrayRemoveAllValues(*data);
-    for (NSString *emoji in Emoji_Data) {
-        CFStringRef cfEmoji = CFStringCreateWithCString(kCFAllocatorDefault, [emoji UTF8String], kCFStringEncodingUTF8);
-        if (cfEmoji != NULL) {
-            CFArrayAppendValue(*data, cfEmoji);
-            CFRelease(cfEmoji);
-        }
-    }
-    [Emoji_Data autorelease];
-    *count = CFArrayGetCount(*data);
-    return orig;
-}
-
 CFURLRef (*copyResourceURLFromFrameworkBundle)(CFStringRef const, CFStringRef const, CFLocaleRef const);
 %hookf(CFURLRef, copyResourceURLFromFrameworkBundle, CFStringRef const resourceName, CFStringRef const resourceType, CFLocaleRef const locale) {
     CFURLRef url = NULL;
@@ -328,9 +304,6 @@ CFURLRef (*copyResourceURLFromFrameworkBundle)(CFStringRef const, CFStringRef co
 
 %ctor {
     dlopen(realPath2(@"/System/Library/PrivateFrameworks/EmojiFoundation.framework/EmojiFoundation"), RTLD_NOW);
-#if TARGET_OS_SIMULATOR
-    dlopen("/opt/simject/EmojiAttributes.dylib", RTLD_LAZY);
-#endif
     MSImageRef ref = MSGetImageByName(realPath2(@"/System/Library/PrivateFrameworks/CoreEmoji.framework/CoreEmoji"));
     copyResourceURLFromFrameworkBundle = (CFURLRef (*)(CFStringRef const, CFStringRef const, CFLocaleRef const))MSFindSymbol(ref, "__ZN3CEM34copyResourceURLFromFrameworkBundleEPK10__CFStringS2_PK10__CFLocale");
     NSString *processName = [[NSProcessInfo processInfo] processName];
@@ -347,9 +320,5 @@ CFURLRef (*copyResourceURLFromFrameworkBundle)(CFStringRef const, CFStringRef co
         %init(EMF_iOS10_2Up);
     }
     %init(EMF_Common);
-    if (isiOS11Up)
-        EmojiData = (void *(*)(void *, CFURLRef const, CFURLRef const))MSFindSymbol(ref, "__ZN3CEM9EmojiDataC1EPK7__CFURLS3_");
-    else
-        EmojiData = (void *(*)(void *, CFURLRef const, CFURLRef const))MSFindSymbol(ref, "__ZN3CEM9EmojiDataC2EPK7__CFURLS3_");
     %init(CoreEmoji);
 }

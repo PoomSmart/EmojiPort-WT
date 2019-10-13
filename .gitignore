@@ -1,5 +1,4 @@
 .theos
 packages/*
-layout/System/Library/LinguisticData
 Plan.txt
 .DS_Store

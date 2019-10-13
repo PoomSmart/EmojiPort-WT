@@ -5,5 +5,5 @@
 
 %ctor {
     if (_isTarget(TargetTypeApps | TargetTypeKeyboardExtensions, @[@"com.apple.WebKit.WebContent", @"kbd"]))
-        dlopen("/Library/MobileSubstrate/DynamicLibraries/Emoji10WT/Emoji10WTReal.dylib", RTLD_LAZY);
+        dlopen("/Library/MobileSubstrate/DynamicLibraries/EmojiPortWT/EmojiPortWTReal.dylib", RTLD_LAZY);
 }
