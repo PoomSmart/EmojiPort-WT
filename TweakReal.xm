@@ -4,10 +4,6 @@
 
 %config(generator=MobileSubstrate)
 
-@interface EMFEmojiToken (EmojiPort)
-@property(assign) int ep_supportsSkinToneVariants;
-@end
-
 %group UIKit_Common
 
 %hook UIKeyboardEmojiCategory
@@ -191,30 +187,6 @@
 
 %end
 
-%hook EMFEmojiToken
-
-%property(assign) int ep_supportsSkinToneVariants;
-
-- (id)initWithCEMEmojiToken:(void *)arg0 {
-    self = %orig;
-    self.ep_supportsSkinToneVariants = -1;
-    return self;
-}
-
-- (id)initWithString:(NSString *)string localeIdentifier:(NSString *)localeIdentifier {
-    self = %orig;
-    self.ep_supportsSkinToneVariants = -1;
-    return self;
-}
-
-- (BOOL)supportsSkinToneVariants {
-    if (self.ep_supportsSkinToneVariants == -1)
-        self.ep_supportsSkinToneVariants = ![PSEmojiUtilities isNoneVariantEmoji:self.string] && [PSEmojiUtilities hasSkinToneVariants:self.string] ? 1 : 0;
-    return self.ep_supportsSkinToneVariants == 1;
-}
-
-%end
-
 %end
 
 %group UIKit_iOS10_1
@@ -307,8 +279,10 @@ BOOL overrideNewVariant = NO;
 CFURLRef (*copyResourceURLFromFrameworkBundle)(CFStringRef const, CFStringRef const, CFLocaleRef const);
 %hookf(CFURLRef, copyResourceURLFromFrameworkBundle, CFStringRef const resourceName, CFStringRef const resourceType, CFLocaleRef const locale) {
     CFURLRef url = NULL;
-    if (resourceName && resourceType && !CFStringEqual(resourceName, CFSTR("emojimeta")) && (CFStringEqual(resourceType, CFSTR("dat")) || CFStringEqual(resourceType, CFSTR("bitmap")) || CFStringEqual(resourceType, CFSTR("strings"))))
-        url = %orig((__bridge CFStringRef)[(__bridge NSString *)resourceName stringByAppendingString:@"2"], resourceType, locale);
+    if (resourceName && resourceType && (CFStringEqual(resourceType, CFSTR("dat")) || CFStringEqual(resourceType, CFSTR("bitmap")) || CFStringEqual(resourceType, CFSTR("strings")))) {
+        CFStringRef newResourceName = CFStringEqual(resourceName, CFSTR("emojimeta")) ? CFSTR("emojimeta_legacy") : (__bridge CFStringRef)[(__bridge NSString *)resourceName stringByAppendingString:@"2"];
+        url = %orig(newResourceName, resourceType, locale);
+    }
     return url ? url : %orig;
 }
 
