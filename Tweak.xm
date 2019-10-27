@@ -4,6 +4,8 @@
 #import "../PS.h"
 
 %ctor {
-    if (_isTarget(TargetTypeApps | TargetTypeKeyboardExtensions, @[@"com.apple.WebKit.WebContent", @"kbd"]))
-        dlopen("/Library/MobileSubstrate/DynamicLibraries/EmojiPortWT/EmojiPortWTReal.dylib", RTLD_LAZY);
+    if (_isTarget(TargetTypeApps | TargetTypeGenericExtensions, @[@"com.apple.WebKit.WebContent", @"kbd"])) {
+        dlopen("/Library/MobileSubstrate/DynamicLibraries/EmojiPort/EmojiAttributes.dylib", RTLD_LAZY);
+        dlopen("/Library/MobileSubstrate/DynamicLibraries/EmojiPort/EmojiPortWTReal.dylib", RTLD_LAZY);
+    }
 }
