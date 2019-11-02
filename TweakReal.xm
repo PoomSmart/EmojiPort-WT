@@ -285,7 +285,7 @@ CFURLRef (*copyResourceURLFromFrameworkBundle)(CFStringRef const, CFStringRef co
             newResourceName = CFStringCreateMutableCopy(kCFAllocatorDefault, CFStringGetLength(resourceName), resourceName);
             CFStringAppend(newResourceName, CFSTR("2"));
         }
-        url = %orig(newResourceName ? newResourceName : CFSTR("emojimeta_legacy"), resourceType, locale);
+        url = %orig(newResourceName ? newResourceName : (isiOS10_2Up ? CFSTR("emojimeta_legacy") : CFSTR("emojimeta_legacy_10")), resourceType, locale);
         if (newResourceName)
             CFRelease(newResourceName);
     }
