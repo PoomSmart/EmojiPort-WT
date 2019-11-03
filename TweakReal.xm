@@ -294,6 +294,56 @@ CFURLRef (*copyResourceURLFromFrameworkBundle)(CFStringRef const, CFStringRef co
 
 %end
 
+%group CoreEmoji_10_1_1
+
+void read_str(FILE *fp, char *str) {
+    char b;
+    size_t n = 0;
+    while ((b = fgetc(fp)) != EOF && b != '\0')
+        str[n++] = (unsigned char)b;
+    str[n] = '\0';
+}
+
+void *(*EmojiData)(void *, CFURLRef const, CFURLRef const);
+%hookf(void *, EmojiData, void *arg0, CFURLRef const datPath, CFURLRef const metaDatPath) {
+    void *orig = %orig(arg0, datPath, metaDatPath);
+#if __LP64__
+    CFMutableArrayRef *data = (CFMutableArrayRef *)((uintptr_t)arg0 + 0x28);
+    int *count = (int *)((uintptr_t)arg0 + 0x32);
+#else
+    CFMutableArrayRef *data = (CFMutableArrayRef *)((uintptr_t)arg0 + 0x14);
+    int *count = (int *)((uintptr_t)arg0 + 0x1A);
+#endif
+    CFArrayRemoveAllValues(*data);
+    FILE *newmeta = fopen(realPath2(@"/System/Library/PrivateFrameworks/CoreEmoji.framework/emojimeta_modern.dat"), "rb");
+    if (newmeta == NULL) {
+        HBLogError(@"Error: Cannot open emojimeta_modern.dat");
+        return orig;
+    }
+    int totalCount = 0;
+    fread(&totalCount, 2, 1, newmeta);
+    uint32_t metaptr = 8 + (3206 * 16);
+    uint32_t metadata[4];
+    char emoji[64];
+    for (int index = 3206; index <= totalCount; ++index) {
+        fseek(newmeta, metaptr, SEEK_SET);
+        fread(metadata, sizeof(uint32_t), 4, newmeta);
+        fseek(newmeta, metadata[2], SEEK_SET);
+        read_str(newmeta, emoji);
+        CFStringRef cfEmoji = CFStringCreateWithCString(kCFAllocatorDefault, emoji, kCFStringEncodingUTF8);
+        if (cfEmoji != NULL) {
+            CFArrayAppendValue(*data, cfEmoji);
+            CFRelease(cfEmoji);
+        }
+        metaptr += 16;
+    }
+    fclose(newmeta);
+    *count = CFArrayGetCount(*data);
+    return orig;
+}
+
+%end
+
 %ctor {
     dlopen(realPath2(@"/System/Library/PrivateFrameworks/EmojiFoundation.framework/EmojiFoundation"), RTLD_NOW);
     MSImageRef ref = MSGetImageByName(realPath2(@"/System/Library/PrivateFrameworks/CoreEmoji.framework/CoreEmoji"));
@@ -310,6 +360,8 @@ CFURLRef (*copyResourceURLFromFrameworkBundle)(CFStringRef const, CFStringRef co
     }
     if (isiOS10_2Up) {
         %init(EMF_iOS10_2Up);
+    } else {
+        %init(CoreEmoji_10_1_1);
     }
     %init(EMF_Common);
     %init(CoreEmoji);
