@@ -1,6 +1,7 @@
 #import "../PS.h"
 #import "../EmojiLibrary/PSEmojiUtilities.h"
 #import "../EmojiLibrary/Header.h"
+#import <version.h>
 
 %config(generator=MobileSubstrate)
 
@@ -276,7 +277,6 @@ BOOL overrideNewVariant = NO;
 
 %group CoreEmoji
 
-CFURLRef (*copyResourceURLFromFrameworkBundle)(CFStringRef const, CFStringRef const, CFLocaleRef const);
 %hookf(CFURLRef, copyResourceURLFromFrameworkBundle, CFStringRef const resourceName, CFStringRef const resourceType, CFLocaleRef const locale) {
     CFURLRef url = NULL;
     if (resourceName && resourceType && (CFStringEqual(resourceType, CFSTR("dat")) || CFStringEqual(resourceType, CFSTR("bitmap")) || CFStringEqual(resourceType, CFSTR("strings")))) {
@@ -285,7 +285,7 @@ CFURLRef (*copyResourceURLFromFrameworkBundle)(CFStringRef const, CFStringRef co
             newResourceName = CFStringCreateMutableCopy(kCFAllocatorDefault, CFStringGetLength(resourceName), resourceName);
             CFStringAppend(newResourceName, CFSTR("2"));
         }
-        url = %orig(newResourceName ? newResourceName : (isiOS10_2Up ? CFSTR("emojimeta_legacy") : CFSTR("emojimeta_legacy_10")), resourceType, locale);
+        url = %orig(newResourceName ? newResourceName : (IS_IOS_OR_NEWER(iOS_10_2) ? CFSTR("emojimeta_legacy") : CFSTR("emojimeta_legacy_10")), resourceType, locale);
         if (newResourceName)
             CFRelease(newResourceName);
     }
@@ -347,22 +347,23 @@ void *(*EmojiData)(void *, CFURLRef const, CFURLRef const);
 %ctor {
     dlopen(realPath2(@"/System/Library/PrivateFrameworks/EmojiFoundation.framework/EmojiFoundation"), RTLD_NOW);
     MSImageRef ref = MSGetImageByName(realPath2(@"/System/Library/PrivateFrameworks/CoreEmoji.framework/CoreEmoji"));
-    copyResourceURLFromFrameworkBundle = (CFURLRef (*)(CFStringRef const, CFStringRef const, CFLocaleRef const))MSFindSymbol(ref, "__ZN3CEM34copyResourceURLFromFrameworkBundleEPK10__CFStringS2_PK10__CFLocale");
+    CFURLRef (*copyResourceURLFromFrameworkBundle_p)(CFStringRef const, CFStringRef const, CFLocaleRef const) = NULL;
+    copyResourceURLFromFrameworkBundle_p = (typeof(copyResourceURLFromFrameworkBundle_p))MSFindSymbol(ref, "__ZN3CEM34copyResourceURLFromFrameworkBundleEPK10__CFStringS2_PK10__CFLocale");
     NSString *processName = [[NSProcessInfo processInfo] processName];
     BOOL kbd = stringEqual(processName, @"kbd");
     if (!kbd) {
         %init(UIKit_Common);
-        if (isiOS10_2Up) {
+        if (IS_IOS_OR_NEWER(iOS_10_2)) {
             %init(UIKit_iOS10_2Up);
         } else {
             %init(UIKit_iOS10_1);
         }
     }
-    if (isiOS10_2Up) {
+    if (IS_IOS_OR_NEWER(iOS_10_2)) {
         %init(EMF_iOS10_2Up);
     } else {
         %init(CoreEmoji_10_1_1);
     }
     %init(EMF_Common);
-    %init(CoreEmoji);
+    %init(CoreEmoji, copyResourceURLFromFrameworkBundle = (void *)copyResourceURLFromFrameworkBundle_p);
 }
