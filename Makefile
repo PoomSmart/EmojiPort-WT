@@ -11,7 +11,7 @@ endif
 include $(THEOS)/makefiles/common.mk
 
 LIBRARY_NAME = EmojiPortWTReal
-EmojiPortWTReal_FILES = TweakReal.xm ../EmojiPort-PE/FamilyPicker.xm
+EmojiPortWTReal_FILES = TweakReal.xm ../EmojiPort-PE/FamilyPicker.x
 EmojiPortWTReal_INSTALL_PATH = /Library/MobileSubstrate/DynamicLibraries/EmojiPort
 EmojiPortWTReal_EXTRA_FRAMEWORKS = CydiaSubstrate
 EmojiPortWTReal_LIBRARIES = EmojiLibrary
