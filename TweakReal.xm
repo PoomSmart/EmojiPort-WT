@@ -1,6 +1,7 @@
 #import "../PS.h"
 #import "../EmojiLibrary/PSEmojiUtilities.h"
 #import "../EmojiLibrary/Header.h"
+#import <HBLog.h>
 #import <version.h>
 
 %config(generator=MobileSubstrate)
