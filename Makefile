@@ -1,4 +1,4 @@
-PACKAGE_VERSION = 1.3.4
+PACKAGE_VERSION = 1.3.5
 
 ifeq ($(SIMULATOR),1)
 	TARGET = simulator:clang:latest:10.0
@@ -11,17 +11,19 @@ endif
 include $(THEOS)/makefiles/common.mk
 
 LIBRARY_NAME = EmojiPortWTReal
-EmojiPortWTReal_FILES = TweakReal.xm ../EmojiPort-PE/FamilyPicker.x
-EmojiPortWTReal_INSTALL_PATH = /Library/MobileSubstrate/DynamicLibraries/EmojiPort
-EmojiPortWTReal_EXTRA_FRAMEWORKS = CydiaSubstrate
-EmojiPortWTReal_LIBRARIES = EmojiLibrary
-EmojiPortWTReal_USE_SUBSTRATE = 1
+$(LIBRARY_NAME)_FILES = TweakReal.x ../EmojiPort-PE/FamilyPicker.x
+$(LIBRARY_NAME)_CFLAGS = -fobjc-arc
+$(LIBRARY_NAME)_INSTALL_PATH = /Library/MobileSubstrate/DynamicLibraries/EmojiPort
+$(LIBRARY_NAME)_EXTRA_FRAMEWORKS = CydiaSubstrate
+$(LIBRARY_NAME)_LIBRARIES = EmojiLibrary
+$(LIBRARY_NAME)_USE_SUBSTRATE = 1
 
 include $(THEOS_MAKE_PATH)/library.mk
 
 ifneq ($(SIMULATOR),1)
 TWEAK_NAME = EmojiPortWT
-EmojiPortWT_FILES = Tweak.xm
+$(TWEAK_NAME)_FILES = Tweak.x
+$(TWEAK_NAME)_CFLAGS = -fobjc-arc
 
 include $(THEOS_MAKE_PATH)/tweak.mk
 endif

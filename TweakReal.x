@@ -1,6 +1,7 @@
 #import "../PS.h"
 #import "../EmojiLibrary/PSEmojiUtilities.h"
 #import "../EmojiLibrary/Header.h"
+#import <dlfcn.h>
 #import <HBLog.h>
 #import <version.h>
 
@@ -166,24 +167,24 @@
     NSString *identifier = self.identifier;
     NSMutableArray <EMFEmojiToken *> *tokens = [NSMutableArray array];
     NSArray <NSString *> *emojis = nil;
-    if (stringEqual(identifier, @"EMFEmojiCategoryPrepopulated"))
+    if ([identifier isEqualToString:@"EMFEmojiCategoryPrepopulated"])
         emojis = [PSEmojiUtilities PrepolulatedEmoji];
-    else if (stringEqual(identifier, @"EMFEmojiCategoryPeople"))
+    else if ([identifier isEqualToString:@"EMFEmojiCategoryPeople"])
         emojis = [PSEmojiUtilities PeopleEmoji];
-    else if (stringEqual(identifier, @"EMFEmojiCategoryNature"))
+    else if ([identifier isEqualToString:@"EMFEmojiCategoryNature"])
         emojis = [PSEmojiUtilities NatureEmoji];
-    else if (stringEqual(identifier, @"EMFEmojiCategoryFoodAndDrink"))
+    else if ([identifier isEqualToString:@"EMFEmojiCategoryFoodAndDrink"])
         emojis = [PSEmojiUtilities FoodAndDrinkEmoji];
-    else if (stringEqual(identifier, @"EMFEmojiCategoryActivity"))
+    else if ([identifier isEqualToString:@"EMFEmojiCategoryActivity"])
         emojis = [PSEmojiUtilities ActivityEmoji];
-    else if (stringEqual(identifier, @"EMFEmojiCategoryTravelAndPlaces"))
+    else if ([identifier isEqualToString:@"EMFEmojiCategoryTravelAndPlaces"])
         emojis = [PSEmojiUtilities TravelAndPlacesEmoji];
-    else if (stringEqual(identifier, @"EMFEmojiCategoryObjects"))
+    else if ([identifier isEqualToString:@"EMFEmojiCategoryObjects"])
         emojis = [PSEmojiUtilities ObjectsEmoji];
-    else if (stringEqual(identifier, @"EMFEmojiCategorySymbols"))
+    else if ([identifier isEqualToString:@"EMFEmojiCategorySymbols"])
         emojis = [PSEmojiUtilities SymbolsEmoji];
     for (NSString *emoji in emojis)
-        [tokens addObject:[NSClassFromString(@"EMFEmojiToken") emojiTokenWithString:emoji localeData:localeData]];
+        [tokens addObject:[%c(EMFEmojiToken) emojiTokenWithString:emoji localeData:localeData]];
     return tokens;
 }
 
@@ -351,7 +352,7 @@ void *(*EmojiData)(void *, CFURLRef const, CFURLRef const);
     CFURLRef (*copyResourceURLFromFrameworkBundle_p)(CFStringRef const, CFStringRef const, CFLocaleRef const) = NULL;
     copyResourceURLFromFrameworkBundle_p = (typeof(copyResourceURLFromFrameworkBundle_p))MSFindSymbol(ref, "__ZN3CEM34copyResourceURLFromFrameworkBundleEPK10__CFStringS2_PK10__CFLocale");
     NSString *processName = [[NSProcessInfo processInfo] processName];
-    BOOL kbd = stringEqual(processName, @"kbd");
+    BOOL kbd = [processName isEqualToString:@"kbd"];
     if (!kbd) {
         %init(UIKit_Common);
         if (IS_IOS_OR_NEWER(iOS_10_2)) {
