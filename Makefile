@@ -1,4 +1,4 @@
-PACKAGE_VERSION = 1.3.6
+PACKAGE_VERSION = 1.3.7
 
 ifeq ($(SIMULATOR),1)
 	TARGET = simulator:clang:latest:10.0
@@ -9,6 +9,8 @@ else
 endif
 
 include $(THEOS)/makefiles/common.mk
+
+TWEAK_NAME = EmojiPortWT
 
 LIBRARY_NAME = EmojiPortWTReal
 $(LIBRARY_NAME)_FILES = TweakReal.x ../EmojiPort-PE/FamilyPicker.x
@@ -21,7 +23,6 @@ $(LIBRARY_NAME)_USE_SUBSTRATE = 1
 include $(THEOS_MAKE_PATH)/library.mk
 
 ifneq ($(SIMULATOR),1)
-TWEAK_NAME = EmojiPortWT
 $(TWEAK_NAME)_FILES = Tweak.x
 $(TWEAK_NAME)_CFLAGS = -fobjc-arc
 
@@ -30,7 +31,7 @@ endif
 
 ifeq ($(SIMULATOR),1)
 setup:: clean all
-	@rm -f /opt/simject/EmojiPortWT.dylib
-	@cp -v $(THEOS_OBJ_DIR)/$(LIBRARY_NAME).dylib /opt/simject/EmojiPortWT.dylib
-	@cp -v $(PWD)/EmojiPortWT.plist /opt/simject
+	@rm -f /opt/simject/$(TWEAK_NAME).dylib
+	@cp -v $(THEOS_OBJ_DIR)/$(LIBRARY_NAME).dylib /opt/simject/$(TWEAK_NAME).dylib
+	@cp -v $(PWD)/$(TWEAK_NAME).plist /opt/simject
 endif

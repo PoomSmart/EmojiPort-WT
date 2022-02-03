@@ -190,6 +190,14 @@
 
 %end
 
+%hook EMFEmojiToken
+
+- (BOOL)supportsSkinToneVariants {
+    return [PSEmojiUtilities hasSkinToneVariants:[self valueForKey:@"_string"]];
+}
+
+%end
+
 %end
 
 %group UIKit_iOS10_1
