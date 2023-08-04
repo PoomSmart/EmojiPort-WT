@@ -1,4 +1,4 @@
-#import "../PS.h"
+#import <PSHeader/PS.h>
 #import "../EmojiLibrary/PSEmojiUtilities.h"
 #import "../EmojiLibrary/Header.h"
 #import <dlfcn.h>
@@ -291,11 +291,14 @@ BOOL overrideNewVariant = NO;
     CFURLRef url = NULL;
     if (resourceName && resourceType && (CFStringEqual(resourceType, CFSTR("dat")) || CFStringEqual(resourceType, CFSTR("bitmap")) || CFStringEqual(resourceType, CFSTR("strings")))) {
         CFMutableStringRef newResourceName = NULL;
-        if (!CFStringEqual(resourceName, CFSTR("emojimeta"))) {
+        if (!CFStringEqual(resourceName, CFSTR("emojimeta")) && !CFStringEqual(resourceName, CFSTR("Emoticons"))) {
             newResourceName = CFStringCreateMutableCopy(kCFAllocatorDefault, CFStringGetLength(resourceName), resourceName);
-            CFStringAppend(newResourceName, CFSTR("2"));
+            if (CFStringEqual(resourceName, CFSTR("FindReplace")) || CFStringEqual(resourceName, CFSTR("FindReplace-en")) || CFStringEqual(resourceName, CFSTR("CharacterPicker")))
+                CFStringAppend(newResourceName, CFSTR("_16"));
+            else
+                CFStringAppend(newResourceName, CFSTR("2"));
         }
-        url = %orig(newResourceName ? newResourceName : (IS_IOS_OR_NEWER(iOS_10_2) ? CFSTR("emojimeta_legacy") : CFSTR("emojimeta_legacy_10")), resourceType, locale);
+        url = %orig(newResourceName ? newResourceName : (IS_IOS_OR_NEWER(iOS_10_2) ? CFSTR("emojimeta_1") : CFSTR("emojimeta_0")), resourceType, locale);
         if (newResourceName)
             CFRelease(newResourceName);
     }
@@ -325,9 +328,9 @@ void *(*EmojiData)(void *, CFURLRef const, CFURLRef const);
     int *count = (int *)((uintptr_t)arg0 + 0x1A);
 #endif
     CFArrayRemoveAllValues(*data);
-    FILE *newmeta = fopen(realPath2(@"/System/Library/PrivateFrameworks/CoreEmoji.framework/emojimeta_modern.dat"), "rb");
+    FILE *newmeta = fopen(realPath2(@"/System/Library/PrivateFrameworks/CoreEmoji.framework/emojimeta_2.dat"), "rb");
     if (newmeta == NULL) {
-        HBLogError(@"Error: Cannot open emojimeta_modern.dat");
+        HBLogError(@"Error: Cannot open emojimeta_2.dat");
         return orig;
     }
     int totalCount = 0;
