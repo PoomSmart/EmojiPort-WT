@@ -1,6 +1,6 @@
 #import <PSHeader/PS.h>
-#import "../EmojiLibrary/PSEmojiUtilities.h"
-#import "../EmojiLibrary/Header.h"
+#import <EmojiLibrary/PSEmojiUtilities.h>
+#import <EmojiLibrary/Header.h>
 #import <dlfcn.h>
 #import <HBLog.h>
 #import <version.h>
