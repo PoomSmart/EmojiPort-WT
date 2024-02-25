@@ -152,7 +152,7 @@
 }
 
 + (NSArray <NSString *> *)_skinToneVariantsForString:(NSString *)emojiString {
-    return [PSEmojiUtilities skinToneVariants:emojiString withSelf:YES];
+    return [PSEmojiUtilities skinToneVariantsForString:emojiString];
 }
 
 %end
