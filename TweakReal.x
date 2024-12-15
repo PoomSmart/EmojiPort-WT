@@ -168,7 +168,7 @@
     NSMutableArray <EMFEmojiToken *> *tokens = [NSMutableArray array];
     NSArray <NSString *> *emojis = nil;
     if ([identifier isEqualToString:@"EMFEmojiCategoryPrepopulated"])
-        emojis = [PSEmojiUtilities PrepolulatedEmoji];
+        emojis = [PSEmojiUtilities PrepopulatedEmoji];
     else if ([identifier isEqualToString:@"EMFEmojiCategoryPeople"])
         emojis = [PSEmojiUtilities PeopleEmoji];
     else if ([identifier isEqualToString:@"EMFEmojiCategoryNature"])
@@ -240,12 +240,12 @@
     return [PSEmojiUtilities FlagsEmoji];
 }
 
-%new
+%new(@@:)
 + (NSArray <NSString *> *)ProfessionEmoji {
     return [PSEmojiUtilities ProfessionEmoji];
 }
 
-%new
+%new(@@:@)
 + (NSString *)professionSkinToneEmojiBaseKey:(NSString *)emojiString {
     return [PSEmojiUtilities professionSkinToneEmojiBaseKey:emojiString];
 }
